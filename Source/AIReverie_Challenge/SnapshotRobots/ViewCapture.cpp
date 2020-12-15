@@ -37,6 +37,7 @@ bool AViewCapture::CapturePlayersView(int32 Resolution, FString FilePath, FStrin
 	// Create a temporary object that we will let die in GC in a moment after this scope ends.
 	UTextureRenderTarget2D * TextureRenderTarget = NewObject<UTextureRenderTarget2D>();
 	TextureRenderTarget->InitAutoFormat(Resolution, Resolution);
+	//This format allows UE4 to produce PNG files
 	TextureRenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA8;
 	// Take the capture.
 	Camera->TextureTarget = TextureRenderTarget;

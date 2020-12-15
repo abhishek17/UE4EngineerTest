@@ -44,6 +44,7 @@ protected:
 
 	//Snapshot helpers
 	void getActorsInViewport(TArray<FString>& CurrentlyRenderedActors);
+	bool SaveStringTextToFile(FString SaveDirectory, FString FileName, FString SaveText);
 	
 public:
 	//Methods

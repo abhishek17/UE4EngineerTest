@@ -26,6 +26,12 @@ void ASnapshotRobotController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//TESTING
+	FString GameSavedDir = FPaths::ProjectSavedDir();
+	FString FileName = FString(TEXT("test.txt"));
+	FString Text = FString(TEXT("bla bla bla"));
+	SaveStringTextToFile(GameSavedDir, FileName, Text);
+
 	//resetting time accumulator at start
 	mTimeSinceLastDecision = mDecisionTimerSeconds;
 
@@ -132,4 +138,29 @@ void ASnapshotRobotController::getActorsInViewport(TArray<FString>& CurrentlyRen
 			}
 		}
 	}
+}
+
+bool ASnapshotRobotController::SaveStringTextToFile(FString SaveDirectory, FString FileName, FString SaveText)
+{
+
+	IPlatformFile& platformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+	// Directory Exists?
+	if (!platformFile.DirectoryExists(*SaveDirectory))
+	{
+		platformFile.CreateDirectory(*SaveDirectory);
+	}
+	//still could not make directory?
+	if (!platformFile.DirectoryExists(*SaveDirectory))
+	{
+		//Could not make the specified directory
+		return false;
+		//~~~~~~~~~~~~~~~~~~~~~~
+	}
+
+	//get complete file path
+	SaveDirectory += "\\";
+	SaveDirectory += FileName;
+
+	return FFileHelper::SaveStringToFile(SaveText, *SaveDirectory);
 }
