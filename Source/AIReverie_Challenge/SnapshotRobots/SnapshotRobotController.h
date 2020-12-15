@@ -29,16 +29,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
 	ASnapshotRobot *mPawn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pawn")
-	UStaticMeshComponent *mPawnStaticMesh;
-
 	//Timer accumulator
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Decision")
 	float mTimeSinceLastDecision;
 
 	//Bot movement functions
 	void MakeDecision();
-	bool IsObstacleAhead();
 	float GetRandomNumber(float Min, float Max);
 	int GetRandomNumber(int32 Min, int32 Max);
 	

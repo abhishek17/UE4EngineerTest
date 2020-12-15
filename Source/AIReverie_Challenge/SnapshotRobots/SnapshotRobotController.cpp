@@ -37,7 +37,6 @@ void ASnapshotRobotController::BeginPlay()
 		{
 			mPawn = Cast<ASnapshotRobot>(*Itr);
 			Possess(mPawn);
-			mPawnStaticMesh = mPawn->GetRootStaticMesh();
 			break;
 		}
 		
@@ -62,44 +61,20 @@ void ASnapshotRobotController::Tick(float DeltaTime)
 
 void ASnapshotRobotController::MakeDecision()
 {
-	if (IsObstacleAhead()) //Rotate
+	if (mPawn->IsObstacleAhead(mObstacleDistance)) //Rotate
 	{
+		//Generate random numbers
 		int32 Direction = GetRandomNumber(0, 1);
 		float DirectionFloat = Direction == 1 ? DirectionFloat = 1.0f : -1.0f;
 		float AngleOfRotation = GetRandomNumber(mMinRotation, mMaxRotation);
 		
-		FRotator NewRotation = FRotator(0.0f, DirectionFloat*AngleOfRotation, 0.0f);
-
-		FQuat QuatRotation = FQuat(NewRotation);
-
-		mPawnStaticMesh->AddLocalRotation(QuatRotation, false, 0, ETeleportType::None);
+		mPawn->RotateRootInYaw(AngleOfRotation, DirectionFloat);
 	}
 	else //Move forward
 	{
-		FVector CurrentBotFowardVector = mPawnStaticMesh->GetForwardVector();
-		mPawnStaticMesh->AddRelativeLocation(CurrentBotFowardVector * mMoveDistance);
+		mPawn->MoveRootForward(mMoveDistance);
 	}
 	
-}
-
-bool ASnapshotRobotController::IsObstacleAhead()
-{
-	FHitResult OutHit;
-	FVector Start = mPawnStaticMesh->GetComponentLocation();
-
-	FVector ForwardVector = mPawnStaticMesh->GetForwardVector();
-	FVector End = ((ForwardVector * mObstacleDistance) + Start);
-	FCollisionQueryParams CollisionParams;
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-	{
-		if (OutHit.bBlockingHit)
-		{
-			UE_LOG(LogTemp, Display, TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName());
-			return true;
-		}
-	}
-	return false;
 }
 
 

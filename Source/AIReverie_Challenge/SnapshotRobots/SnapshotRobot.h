@@ -36,10 +36,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
+	// Called to bind functionality to input; Overriding it and keeping it empty so that inputs can`t move this robot pawn.
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//Getters
-	UFUNCTION(BlueprintCallable,Category = "Getters")
-	FORCEINLINE class UStaticMeshComponent* GetRootStaticMesh() const { return mMesh; }
+	//Movement functions
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		void RotateRootInYaw(float Angle, float Direction);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		void MoveRootForward(float MovementSpeed);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+		bool IsObstacleAhead(float ObstacleDistance);
+
 };

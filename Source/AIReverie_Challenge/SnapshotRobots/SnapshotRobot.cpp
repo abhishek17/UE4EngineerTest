@@ -44,3 +44,35 @@ void ASnapshotRobot::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 }
 
+void ASnapshotRobot::RotateRootInYaw(float Angle, float Direction)
+{
+	FRotator NewRotation = FRotator(0.0f, Direction*Angle, 0.0f);
+	FQuat QuatRotation = FQuat(NewRotation);
+	mMesh->AddLocalRotation(QuatRotation, false, 0, ETeleportType::None);
+}
+
+void ASnapshotRobot::MoveRootForward(float MovementSpeed)
+{
+	FVector CurrentBotFowardVector = mMesh->GetForwardVector();
+	mMesh->AddRelativeLocation(CurrentBotFowardVector * MovementSpeed);
+}
+
+bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
+{
+	FHitResult OutHit;
+	FVector Start = mMesh->GetComponentLocation();
+
+	FVector ForwardVector = mMesh->GetForwardVector();
+	FVector End = ((ForwardVector * ObstacleDistance) + Start);
+	FCollisionQueryParams CollisionParams;
+
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	{
+		if (OutHit.bBlockingHit)
+		{
+			UE_LOG(LogTemp, Display, TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName());
+			return true;
+		}
+	}
+	return false;
+}
