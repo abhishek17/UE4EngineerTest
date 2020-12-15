@@ -66,19 +66,6 @@ void ASnapshotRobot::MoveRootForward(float MovementSpeed)
 
 bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
 {
-	FString GameSavedDir = FPaths::ProjectSavedDir();
-	FString FileName = FString(TEXT("test.png"));
-	if (mSnapshotActor == nullptr)
-	{
-		//Instantiate view capture actor
-		FVector Location(0.0f, 0.0f, 89.f);
-		FRotator Rotation(0.0f, 0.0f, 0.0f);
-		FActorSpawnParameters SpawnInfo;
-
-		mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo);
-	}
-	mSnapshotActor->CapturePlayersView(512, GameSavedDir, FileName,GetActorLocation(),GetActorRotation(),mCamera->FieldOfView);
-
 	FHitResult OutHit;
 	FVector Start = mMesh->GetComponentLocation();
 
@@ -95,4 +82,19 @@ bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
 		}
 	}
 	return false;
+}
+
+bool ASnapshotRobot::CaptureSnapshot(int32 Resolution, FString Directory, FString Filename)
+{
+	if (mSnapshotActor == nullptr)
+	{
+		//Instantiate view capture actor
+		FVector Location(0.0f, 0.0f, 89.f);
+		FRotator Rotation(0.0f, 0.0f, 0.0f);
+		FActorSpawnParameters SpawnInfo;
+
+		mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo);
+	}
+	return mSnapshotActor->CapturePlayersView(Resolution, Directory, Filename, GetActorLocation(), GetActorRotation(), mCamera->FieldOfView);
+
 }

@@ -37,20 +37,32 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
 	TArray<FString> mActorsInViewport;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
+	FString mActorsInViewportCombinedString;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
+	FString mGameSavedDataDir;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
+	int mDataCaptureIndex;
+
 	//Bot movement functions
 	void MakeDecision();
+	void CaptureData();
 	float GetRandomNumber(float Min, float Max);
 	int GetRandomNumber(int32 Min, int32 Max);
 
 	//Snapshot helpers
-	void getActorsInViewport(TArray<FString>& CurrentlyRenderedActors);
+	void GetActorsInViewport(TArray<FString>& CurrentlyRenderedActors, FString &CombinedString);
 	bool SaveStringTextToFile(FString SaveDirectory, FString FileName, FString SaveText);
+	bool CreateDataDirectory(FString SaveDirectory);
 	
 public:
 	//Methods
 	virtual void Tick(float DeltaTime) override;
 
 	//Public components
+	//These can be edited in blueprints. Ideally, these should be defined in the game mode, so that they can be altered without creating an inherited blueprint. But since the gamemode was provided with the test as a blueprint, a design decision was made to keep constants in the player controller.
 
 	//Wait time between robot`s decisions
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Decision")
@@ -71,5 +83,9 @@ public:
 	//Obstacle check distance
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Decision")
 	float mObstacleDistance;
+
+	//Obstacle check distance
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Snapshot")
+	int32 mSnapshotResolution;
 
 };

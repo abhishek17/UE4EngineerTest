@@ -53,4 +53,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsObstacleAhead(float ObstacleDistance);
 
+	//Image Capture
+	UFUNCTION(BlueprintCallable, Category = "Snapshot")
+	bool CaptureSnapshot(int32 Resolution, FString Directory, FString Filename);
+
 };

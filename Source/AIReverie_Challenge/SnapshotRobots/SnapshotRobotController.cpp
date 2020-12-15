@@ -20,17 +20,13 @@ ASnapshotRobotController::ASnapshotRobotController()
 
 	mObstacleDistance = 15.0f;
 
+	mSnapshotResolution = 512;
+
 }
 
 void ASnapshotRobotController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//TESTING
-	FString GameSavedDir = FPaths::ProjectSavedDir();
-	FString FileName = FString(TEXT("test.txt"));
-	FString Text = FString(TEXT("bla bla bla"));
-	SaveStringTextToFile(GameSavedDir, FileName, Text);
 
 	//resetting time accumulator at start
 	mTimeSinceLastDecision = mDecisionTimerSeconds;
@@ -43,9 +39,17 @@ void ASnapshotRobotController::BeginPlay()
 			mPawn = Cast<ASnapshotRobot>(*Itr);
 			Possess(mPawn);
 			break;
-		}
-		
+		}	
 	}
+
+	//Create Saved\Data directory
+	FString GameSavedDir = FPaths::ProjectSavedDir();
+	mGameSavedDataDir = GameSavedDir + "\\Data";
+	CreateDataDirectory(mGameSavedDataDir);
+
+	//Reset the data capture index
+	mDataCaptureIndex = 0;
+	
 }
 
 void ASnapshotRobotController::Tick(float DeltaTime)
@@ -61,6 +65,9 @@ void ASnapshotRobotController::Tick(float DeltaTime)
 
 		//Move the bot
 		MakeDecision();
+
+		//Capture data
+		CaptureData();
 	}
 }
 
@@ -80,10 +87,26 @@ void ASnapshotRobotController::MakeDecision()
 		mPawn->MoveRootForward(mMoveDistance);
 	}
 	
-	getActorsInViewport(mActorsInViewport);
-	
 }
 
+void ASnapshotRobotController::CaptureData()
+{
+	//Increment data capture index
+	mDataCaptureIndex++;
+
+	//Click snapshots and save data
+	FString DataCaptureBaseName = "image_";
+	DataCaptureBaseName += FString::FromInt(mDataCaptureIndex);
+
+	//Capture snapshot
+	FString ImageCapturename = DataCaptureBaseName + ".png";
+	mPawn->CaptureSnapshot(mSnapshotResolution, mGameSavedDataDir, ImageCapturename);
+
+	//Save Actors
+	GetActorsInViewport(mActorsInViewport, mActorsInViewportCombinedString);
+	FString TextFileName = DataCaptureBaseName + "_actors.txt";
+	SaveStringTextToFile(mGameSavedDataDir, TextFileName, mActorsInViewportCombinedString);
+}
 
 float ASnapshotRobotController::GetRandomNumber(float Min, float Max)
 {
@@ -97,8 +120,12 @@ int ASnapshotRobotController::GetRandomNumber(int32 Min, int32 Max)
 	return FMath::RandRange(Min, Max);
 }
 
-void ASnapshotRobotController::getActorsInViewport(TArray<FString>& CurrentlyRenderedActors)
+void ASnapshotRobotController::GetActorsInViewport(TArray<FString>& CurrentlyRenderedActors, FString &CombinedString)
 {
+	//reset data arrays
+	CurrentlyRenderedActors.Empty();
+	CombinedString.Empty();
+
 	//Get the view frustum and see if any primitive collides with it. This helps find out what has not been clipped in rendering
 	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 
@@ -112,6 +139,7 @@ void ASnapshotRobotController::getActorsInViewport(TArray<FString>& CurrentlyRen
 	FRotator ViewRotation;
 	FSceneView* SceneView = LocalPlayer->CalcSceneView(&ViewFamily, /*out*/ ViewLocation, /*out*/ ViewRotation, LocalPlayer->ViewportClient->Viewport);
 
+	bool IsFirstActor = true;
 	for (TObjectIterator<UPrimitiveComponent> ScenePrimitsItr; ScenePrimitsItr; ++ScenePrimitsItr)
 	{
 		// Using the Object iterator so we have to skip objects not in the 
@@ -131,7 +159,17 @@ void ASnapshotRobotController::getActorsInViewport(TArray<FString>& CurrentlyRen
 					{
 						if (!CurrentlyRenderedActors.Contains(OwnerActor->GetName()))
 						{
-							UE_LOG(LogTemp, Display, TEXT("You are Seeing: %s"), *ScenePrimitsItr->GetOwner()->GetName());
+							CurrentlyRenderedActors.Add(OwnerActor->GetName());
+							if (IsFirstActor)
+							{
+								CombinedString = OwnerActor->GetName();
+								IsFirstActor = false;
+							}
+							else
+							{
+								CombinedString += " ";
+								CombinedString += OwnerActor->GetName();
+							}
 						}
 					}
 				}
@@ -163,4 +201,23 @@ bool ASnapshotRobotController::SaveStringTextToFile(FString SaveDirectory, FStri
 	SaveDirectory += FileName;
 
 	return FFileHelper::SaveStringToFile(SaveText, *SaveDirectory);
+}
+
+bool ASnapshotRobotController::CreateDataDirectory(FString SaveDirectory)
+{
+	//Create data folder in saved
+	IPlatformFile& platformFile = FPlatformFileManager::Get().GetPlatformFile();
+	// Directory Exists?
+	if (!platformFile.DirectoryExists(*SaveDirectory))
+	{
+		platformFile.CreateDirectory(*SaveDirectory);
+	}
+	//still could not make directory?
+	if (!platformFile.DirectoryExists(*SaveDirectory))
+	{
+		//Could not make the specified directory
+		return false;
+		//~~~~~~~~~~~~~~~~~~~~~~
+	}
+	return true;
 }
