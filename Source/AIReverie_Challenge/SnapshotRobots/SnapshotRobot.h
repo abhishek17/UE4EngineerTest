@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "ViewCapture.h"
 #include "SnapshotRobot.generated.h"
 
 UCLASS()
@@ -31,6 +32,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* mCamera;
 
+	//View capture actor
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
+	AViewCapture* mSnapshotActor;
 
 public:	
 	// Called every frame
@@ -41,12 +45,12 @@ public:
 
 	//Movement functions
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-		void RotateRootInYaw(float Angle, float Direction);
+	void RotateRootInYaw(float Angle, float Direction);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-		void MoveRootForward(float MovementSpeed);
+	void MoveRootForward(float MovementSpeed);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-		bool IsObstacleAhead(float ObstacleDistance);
+	bool IsObstacleAhead(float ObstacleDistance);
 
 };

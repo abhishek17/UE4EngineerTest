@@ -33,10 +33,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Decision")
 	float mTimeSinceLastDecision;
 
+	//Array to trace actors in the viewport
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
+	TArray<FString> mActorsInViewport;
+
 	//Bot movement functions
 	void MakeDecision();
 	float GetRandomNumber(float Min, float Max);
 	int GetRandomNumber(int32 Min, int32 Max);
+
+	//Snapshot helpers
+	void getActorsInViewport(TArray<FString>& CurrentlyRenderedActors);
 	
 public:
 	//Methods

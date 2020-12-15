@@ -4,6 +4,7 @@
 #include "SnapshotRobot.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/Paths.h"
 
 // Sets default values
 ASnapshotRobot::ASnapshotRobot()
@@ -28,6 +29,12 @@ void ASnapshotRobot::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Instantiate view capture actor
+	FVector Location(0.0f, 0.0f, 89.f); 
+	FRotator Rotation(0.0f, 0.0f, 0.0f);
+	FActorSpawnParameters SpawnInfo;
+	
+	mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo); 
 }
 
 // Called every frame
@@ -59,6 +66,19 @@ void ASnapshotRobot::MoveRootForward(float MovementSpeed)
 
 bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
 {
+	FString GameSavedDir = FPaths::ProjectSavedDir();
+	FString FileName = FString(TEXT("test.png"));
+	if (mSnapshotActor == nullptr)
+	{
+		//Instantiate view capture actor
+		FVector Location(0.0f, 0.0f, 89.f);
+		FRotator Rotation(0.0f, 0.0f, 0.0f);
+		FActorSpawnParameters SpawnInfo;
+
+		mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo);
+	}
+	mSnapshotActor->CapturePlayersView(512, GameSavedDir, FileName,GetActorLocation(),GetActorRotation(),mCamera->FieldOfView);
+
 	FHitResult OutHit;
 	FVector Start = mMesh->GetComponentLocation();
 
