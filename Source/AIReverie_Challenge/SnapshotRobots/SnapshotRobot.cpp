@@ -28,20 +28,13 @@ ASnapshotRobot::ASnapshotRobot()
 void ASnapshotRobot::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//Instantiate view capture actor
-	FVector Location(0.0f, 0.0f, 89.f); 
-	FRotator Rotation(0.0f, 0.0f, 0.0f);
-	FActorSpawnParameters SpawnInfo;
-	
-	mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo); 
 }
+
 
 // Called every frame
 void ASnapshotRobot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -49,6 +42,13 @@ void ASnapshotRobot::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ASnapshotRobot::SetDefaultAltitude(float Altitude)
+{
+	FVector CurrPawnLocation = GetActorLocation();
+	CurrPawnLocation.Z = Altitude;
+	SetActorLocation(CurrPawnLocation);
 }
 
 void ASnapshotRobot::RotateRootInYaw(float Angle, float Direction)
@@ -84,17 +84,40 @@ bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
 	return false;
 }
 
+void ASnapshotRobot::EnsureCaptureActorReference()
+{
+		//If not found in the scene, instantiate a new actor
+		if (mSnapshotActor == nullptr)
+		{
+			//Instantiate view capture actor
+			FVector Location(0.0f, 0.0f, 89.f);
+			FRotator Rotation(0.0f, 0.0f, 0.0f);
+			FActorSpawnParameters SpawnInfo;
+
+			mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo);
+		}
+}
+
+void ASnapshotRobot::SpawnSphere_Implementation()
+{
+	UE_LOG(LogTemp, Display, TEXT("SpawnSphere base class"));
+}
+
 bool ASnapshotRobot::CaptureSnapshot(int32 Resolution, FString Directory, FString Filename)
 {
-	if (mSnapshotActor == nullptr)
+
+	EnsureCaptureActorReference();
+
+	//Capture and save the image
+	bool SuccessCapture =  mSnapshotActor->CapturePlayersView(Resolution, Directory, Filename, GetActorLocation(), GetActorRotation(), mCamera->FieldOfView);
+	if (SuccessCapture)
 	{
-		//Instantiate view capture actor
-		FVector Location(0.0f, 0.0f, 89.f);
-		FRotator Rotation(0.0f, 0.0f, 0.0f);
-		FActorSpawnParameters SpawnInfo;
-
-		mSnapshotActor = GetWorld()->SpawnActor<AViewCapture>(AViewCapture::StaticClass(), Location, Rotation, SpawnInfo);
+		//Call the spawn sphere function, which will be implemented in the blueprints by a child class of snapshot robot
+		SpawnSphere();
+		return true;
 	}
-	return mSnapshotActor->CapturePlayersView(Resolution, Directory, Filename, GetActorLocation(), GetActorRotation(), mCamera->FieldOfView);
-
+	else
+	{
+		return false;
+	}
 }

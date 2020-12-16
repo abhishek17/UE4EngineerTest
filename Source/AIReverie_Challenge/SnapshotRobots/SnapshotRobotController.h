@@ -85,6 +85,10 @@ public:
 	float mObstacleDistance;
 
 	//Obstacle check distance
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Decision")
+	float mPawnDefaultAltitude;
+
+	//Obstacle check distance
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Snapshot")
 	int32 mSnapshotResolution;
 

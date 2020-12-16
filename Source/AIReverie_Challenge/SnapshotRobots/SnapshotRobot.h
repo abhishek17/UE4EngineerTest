@@ -37,6 +37,7 @@ protected:
 	AViewCapture* mSnapshotActor;
 
 public:	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -44,6 +45,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//Movement functions
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetDefaultAltitude(float Altitude);
+
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void RotateRootInYaw(float Angle, float Direction);
 
@@ -56,5 +61,12 @@ public:
 	//Image Capture
 	UFUNCTION(BlueprintCallable, Category = "Snapshot")
 	bool CaptureSnapshot(int32 Resolution, FString Directory, FString Filename);
+
+	//This is to implement the function in Robot 2
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Snapshot")
+	void SpawnSphere();
+
+	//Helper functions
+	void EnsureCaptureActorReference();
 
 };

@@ -20,6 +20,8 @@ ASnapshotRobotController::ASnapshotRobotController()
 
 	mObstacleDistance = 15.0f;
 
+	mPawnDefaultAltitude = 280.f;
+
 	mSnapshotResolution = 512;
 
 }
@@ -31,15 +33,15 @@ void ASnapshotRobotController::BeginPlay()
 	//resetting time accumulator at start
 	mTimeSinceLastDecision = mDecisionTimerSeconds;
 
-	//Possess the snapshot robot (pawn) in the scene, so that the starting position of a bot (1 or 2) can be adjusted before simulating. 
-	for (TObjectIterator<ASnapshotRobot> Itr; Itr; ++Itr)
+	//Setup pawn
+	mPawn = Cast<ASnapshotRobot> (GetPawn());
+	if (mPawn == nullptr)
 	{
-		if (Itr->IsA(ASnapshotRobot::StaticClass()))
-		{
-			mPawn = Cast<ASnapshotRobot>(*Itr);
-			Possess(mPawn);
-			break;
-		}	
+		UE_LOG(LogTemp, Error, TEXT("No Pawn in the Scene!!!"));
+	}
+	else
+	{
+		mPawn->SetDefaultAltitude(mPawnDefaultAltitude);
 	}
 
 	//Create Saved\Data directory
@@ -51,6 +53,7 @@ void ASnapshotRobotController::BeginPlay()
 	mDataCaptureIndex = 0;
 	
 }
+
 
 void ASnapshotRobotController::Tick(float DeltaTime)
 {
