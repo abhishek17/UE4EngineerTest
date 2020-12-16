@@ -3,6 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetRenderingLibrary.h"
 #include "Engine/World.h"
+
 // Sets default values
 AViewCapture::AViewCapture(const FObjectInitializer& ObjectInitializer) 
 {
@@ -16,6 +17,8 @@ AViewCapture::AViewCapture(const FObjectInitializer& ObjectInitializer)
 	// Set the right format to produce png files
 	Camera->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
 }
+
+//Make the camera component look at pawn`s camera
 bool AViewCapture::SetCameraToPlayerView(FVector PawnLocation, FRotator PawnRotation, float CameraFOV)
 {
 
@@ -26,6 +29,8 @@ bool AViewCapture::SetCameraToPlayerView(FVector PawnLocation, FRotator PawnRota
 
 	return true;
 }
+
+//Captures player`s view and stores it to a file
 bool AViewCapture::CapturePlayersView(int32 Resolution, FString FilePath, FString FileName, FVector PawnLocation, FRotator PawnRotation, float CameraFOV)
 {
 	// Make the resolution a power of two.

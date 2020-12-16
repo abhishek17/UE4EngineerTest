@@ -1,3 +1,8 @@
+# UE4EngineerTest by Abhishek Verma
+The project requires the users to choose one of the two robots as pawns in their game modes. The two pawns are SnapshotRobot and SnapShotRobot2_BP . 
+The simulation varibales can be altered using the SnapshotRobotController. 
+
+
 # UE4EngineerTest
 This project currently runs on UE4 4.25.4
 

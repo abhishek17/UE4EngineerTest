@@ -9,7 +9,9 @@
 #include "SnapshotRobotController.generated.h"
 
 /**
- * 
+ This class controls the custom pawn. This class takes the help of pawn functions to make
+ decisions. This class also contains variables that have been exposed to the Editor and 
+ blueprints to change the simulation parameters
  */
 UCLASS()
 class AIREVERIE_CHALLENGE_API ASnapshotRobotController : public APlayerController
@@ -17,6 +19,7 @@ class AIREVERIE_CHALLENGE_API ASnapshotRobotController : public APlayerControlle
 	GENERATED_BODY()
 	
 public:
+	// Sets default values for this controller's properties
 	ASnapshotRobotController();
 
 protected:
@@ -40,9 +43,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
 	FString mActorsInViewportCombinedString;
 
+	//Save backslash Data directory
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
 	FString mGameSavedDataDir;
 
+	//Index to capture the number of simulations captured since Begin play
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Snapshot")
 	int mDataCaptureIndex;
 
@@ -59,6 +64,7 @@ protected:
 	
 public:
 	//Methods
+	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	//Public components
@@ -84,11 +90,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Decision")
 	float mObstacleDistance;
 
-	//Obstacle check distance
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Decision")
-	float mPawnDefaultAltitude;
-
-	//Obstacle check distance
+	//Snapshot resolution
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Snapshot")
 	int32 mSnapshotResolution;
 

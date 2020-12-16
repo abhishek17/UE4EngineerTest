@@ -11,13 +11,14 @@ ASnapshotRobot::ASnapshotRobot()
 {
 	//Create components
 	mMesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	mSpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	mCamera = CreateDefaultSubobject<UCameraComponent>("Camera");
 
 	//Set up component heirarchy 
 	RootComponent = mMesh;
-	mSpringArm->SetupAttachment(mMesh);
-	mCamera->SetupAttachment(mSpringArm);
+	mCamera->SetupAttachment(mMesh);
+
+	//set defaults
+	mCameraRelativePlacement = -50.0f;
 
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,6 +29,9 @@ ASnapshotRobot::ASnapshotRobot()
 void ASnapshotRobot::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Push camera component a bit behind the root mesh to allow for better snapshots
+	mCamera->SetRelativeLocation(FVector(mCameraRelativePlacement, 0.0f, 0.0f));
 }
 
 
@@ -44,13 +48,7 @@ void ASnapshotRobot::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 }
 
-void ASnapshotRobot::SetDefaultAltitude(float Altitude)
-{
-	FVector CurrPawnLocation = GetActorLocation();
-	CurrPawnLocation.Z = Altitude;
-	SetActorLocation(CurrPawnLocation);
-}
-
+//Helps to rotate the pawn in Yaw
 void ASnapshotRobot::RotateRootInYaw(float Angle, float Direction)
 {
 	FRotator NewRotation = FRotator(0.0f, Direction*Angle, 0.0f);
@@ -58,12 +56,14 @@ void ASnapshotRobot::RotateRootInYaw(float Angle, float Direction)
 	mMesh->AddLocalRotation(QuatRotation, false, 0, ETeleportType::None);
 }
 
+//Helps the pawn to move forward
 void ASnapshotRobot::MoveRootForward(float MovementSpeed)
 {
 	FVector CurrentBotFowardVector = mMesh->GetForwardVector();
 	mMesh->AddRelativeLocation(CurrentBotFowardVector * MovementSpeed);
 }
 
+//This function checks if there is an obstacle right in the front
 bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
 {
 	FHitResult OutHit;
@@ -78,10 +78,10 @@ bool ASnapshotRobot::IsObstacleAhead(float ObstacleDistance)
 		if (OutHit.bBlockingHit)
 		{
 			UE_LOG(LogTemp, Display, TEXT("You are hitting: %s"), *OutHit.GetActor()->GetName());
-			return true;
+			return true; //We hit something
 		}
 	}
-	return false;
+	return false;//Nothing in the front
 }
 
 void ASnapshotRobot::EnsureCaptureActorReference()
@@ -98,14 +98,16 @@ void ASnapshotRobot::EnsureCaptureActorReference()
 		}
 }
 
+//This is the base class implementation of the spawnSphere function
 void ASnapshotRobot::SpawnSphere_Implementation()
 {
 	UE_LOG(LogTemp, Display, TEXT("SpawnSphere base class"));
 }
 
+//Function to help with capturing snapshots as png files
 bool ASnapshotRobot::CaptureSnapshot(int32 Resolution, FString Directory, FString Filename)
 {
-
+	//make sure that we have the View Capture actor
 	EnsureCaptureActorReference();
 
 	//Capture and save the image

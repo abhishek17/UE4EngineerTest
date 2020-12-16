@@ -20,18 +20,19 @@ ASnapshotRobotController::ASnapshotRobotController()
 
 	mObstacleDistance = 15.0f;
 
-	mPawnDefaultAltitude = 280.f;
-
 	mSnapshotResolution = 512;
 
 }
 
+//Controller`s Begin play
 void ASnapshotRobotController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	//resetting time accumulator at start
 	mTimeSinceLastDecision = mDecisionTimerSeconds;
+	//Reset the data capture index
+	mDataCaptureIndex = 0;
 
 	//Setup pawn
 	mPawn = Cast<ASnapshotRobot> (GetPawn());
@@ -39,22 +40,15 @@ void ASnapshotRobotController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("No Pawn in the Scene!!!"));
 	}
-	else
-	{
-		mPawn->SetDefaultAltitude(mPawnDefaultAltitude);
-	}
 
 	//Create Saved\Data directory
 	FString GameSavedDir = FPaths::ProjectSavedDir();
 	mGameSavedDataDir = GameSavedDir + "\\Data";
 	CreateDataDirectory(mGameSavedDataDir);
-
-	//Reset the data capture index
-	mDataCaptureIndex = 0;
 	
 }
 
-
+//Controller`s tick
 void ASnapshotRobotController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -74,6 +68,7 @@ void ASnapshotRobotController::Tick(float DeltaTime)
 	}
 }
 
+//This function is called whenever the wait period is over and it`s time for a robot pawn to make a decision
 void ASnapshotRobotController::MakeDecision()
 {
 	if (mPawn->IsObstacleAhead(mObstacleDistance)) //Rotate
@@ -92,6 +87,7 @@ void ASnapshotRobotController::MakeDecision()
 	
 }
 
+//This function is responsible for capturing data, including a snapshot and a text file
 void ASnapshotRobotController::CaptureData()
 {
 	//Increment data capture index
@@ -111,18 +107,21 @@ void ASnapshotRobotController::CaptureData()
 	SaveStringTextToFile(mGameSavedDataDir, TextFileName, mActorsInViewportCombinedString);
 }
 
+//Function to generate a random float
 float ASnapshotRobotController::GetRandomNumber(float Min, float Max)
 {
 	int32 seed = (int32)(FDateTime::Now().GetTicks() % INT_MAX);
 	return FMath::FRandRange(Min, Max);
 }
 
+//Function to generate a random integer
 int ASnapshotRobotController::GetRandomNumber(int32 Min, int32 Max)
 {
 	int32 seed = (int32)(FDateTime::Now().GetTicks() % INT_MAX);
 	return FMath::RandRange(Min, Max);
 }
 
+//This function goes through the scene proxies for all the actors in the scene to compare with the view frustum. After that all the overlapping actors are stored in an array
 void ASnapshotRobotController::GetActorsInViewport(TArray<FString>& CurrentlyRenderedActors, FString &CombinedString)
 {
 	//reset data arrays
@@ -157,6 +156,7 @@ void ASnapshotRobotController::GetActorsInViewport(TArray<FString>& CurrentlyRen
 					SceneView->ViewFrustum.IntersectBox(Proxy->GetBounds().Origin, Proxy->GetBounds().BoxExtent);
 				if (bIsShown)
 				{
+					//If collided, see if the actor that owns this primitive has not been stored
 					AActor *OwnerActor = ScenePrimitsItr->GetOwner();
 					if (OwnerActor != nullptr)
 					{
@@ -181,6 +181,7 @@ void ASnapshotRobotController::GetActorsInViewport(TArray<FString>& CurrentlyRen
 	}
 }
 
+//This function saves the string containing actors to a file
 bool ASnapshotRobotController::SaveStringTextToFile(FString SaveDirectory, FString FileName, FString SaveText)
 {
 
@@ -206,6 +207,7 @@ bool ASnapshotRobotController::SaveStringTextToFile(FString SaveDirectory, FStri
 	return FFileHelper::SaveStringToFile(SaveText, *SaveDirectory);
 }
 
+//This function creates the Data folder under the Saved directory, if it does not exist
 bool ASnapshotRobotController::CreateDataDirectory(FString SaveDirectory)
 {
 	//Create data folder in saved
