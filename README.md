@@ -1,6 +1,14 @@
 # UE4EngineerTest by Abhishek Verma
+----------------------------------------
 The project requires the users to choose one of the two robots as pawns in their game modes. The two pawns are SnapshotRobot and SnapShotRobot2_BP . 
-The simulation varibales can be altered using the SnapshotRobotController. 
+The simulation variables can be altered using the SnapshotRobotController.
+
+Performance Improvement Pointers
+-----------------------------------
+The project was implemented to fulfill the core requirements of the test. Some of the areas do extensive computations that can be obtimized:
+- The function that finds all the actors in the viewport can be improved. Currently, the frustum check goes through all the primitives to compare their bounds. This can be improved by placing putting render queues based on primitives entering and exiting view frustums. 
+- The file I/O can be run on a seperate thread. This was not done mainly because the test scene was not that dense and the wait time between captures was long enough for it to not matter. 
+- The spheres instantiated can be offloaded to the GPU by instantiating the sphere mesh rather than creating actors every capture.  
 
 
 # UE4EngineerTest
